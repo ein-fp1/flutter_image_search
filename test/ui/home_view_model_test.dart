@@ -9,16 +9,12 @@ void main() {
     await viewModel.fetch('flower');
 
     final List<Photo> result = fakeJson.map((e) => Photo.fromJson(e)).toList();
-
-    expect(
-      viewModel.photoStream,
-      emitsInOrder(
-        [
-          isA<List<Photo>>(),
-          equals(result),
-        ],
-      ),
-    );
+    final viewModelPhotos = [];
+    for (int i = 0; i < viewModel.length; i++) {
+      viewModelPhotos.add(viewModel.photo(i));
+    }
+    ;
+    expect(viewModelPhotos, result);
   });
 }
 
