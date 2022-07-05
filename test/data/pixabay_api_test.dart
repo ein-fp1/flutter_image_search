@@ -1,4 +1,5 @@
-import 'package:flutter_image_search/data/pixabay_api.dart';
+import 'package:flutter_image_search/data/data_source/pixabay_api.dart';
+import 'package:flutter_image_search/data/repository/photo_api_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
@@ -9,15 +10,16 @@ import 'pixabay_api_test.mocks.dart';
 @GenerateMocks([http.Client])
 void main() {
   test('Pixabay Response Check', () async {
-    final api = PixabayApi();
-
     final client = MockClient();
+    final api = PhotoApiRepositoryImpl(
+      PixabayApi(client),
+    );
 
     when(client.get(Uri.parse(
             '${PixabayApi.baseUrl}?key=${PixabayApi.key}&q=flower&image_type=photo')))
         .thenAnswer((_) async => http.Response(fakeJsonBody, 200));
 
-    final result = await api.fetch('flower', client: client);
+    final result = await api.fetch('flower');
 
     expect(result.first.id, 276014);
 
