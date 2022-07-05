@@ -2,17 +2,18 @@
 
 Image search project for MVVM.
 
-## Getting Started
-### Generate API Key
-[PIXABAY Docs](https://pixabay.com/api/docs/)
+##Prerequisites
+- Generate API Key [PIXABAY Docs](https://pixabay.com/api/docs/)
+- Flutter 3.x
 
-### Test
+## Getting Started
+## Test
 ```shell
 $ flutter pub run build_runner build
 $ flutter test 
 ```
 
-### Run
+## Run
 ```shell
 $ flutter run
 ```
