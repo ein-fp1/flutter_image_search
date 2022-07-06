@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_image_search/presentation/home/components/photo_widget.dart';
-import 'package:flutter_image_search/ui/home_view_model.dart';
+import 'package:flutter_image_search/presentation/home/home_view_model.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,8 +14,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _textEditingController = TextEditingController();
+  StreamSubscription? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final viewModel = context.read<HomeViewModel>(); // 단발성 이벤트
+      _subscription = viewModel.eventStream.listen((event) {
+        event.when(showSnackBar: (message) {
+          final snackBar = SnackBar(content: Text(message));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        });
+      });
+    });
+  }
+
   @override
   void dispose() {
+    _subscription?.cancel();
     _textEditingController.dispose();
     super.dispose();
   }
@@ -62,6 +82,17 @@ class _HomeScreenState extends State<HomeScreen> {
           Consumer<HomeViewModel>(
             // 코드 가독성을 위해 컨슈머를 사용하지 않는 방향을 선택 가능
             builder: (_, viewModel, child) {
+              final state = viewModel.state;
+              if (state.isLoading) {
+                return Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      CircularProgressIndicator(),
+                    ],
+                  ),
+                );
+              }
               return Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.all(16.0),
@@ -72,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 16,
                   ),
                   itemBuilder: (context, index) {
-                    final photo = viewModel.photo(index);
+                    final photo = state.photo(index);
                     return PhotoWidget(
                       photo: photo,
                     );

@@ -1,17 +1,19 @@
+import 'package:flutter_image_search/data/data_source/result.dart';
 import 'package:flutter_image_search/domain/model/photo.dart';
 import 'package:flutter_image_search/domain/repository/photo_api_repository.dart';
-import 'package:flutter_image_search/ui/home_view_model.dart';
+import 'package:flutter_image_search/domain/use_case/get_photos_use_case.dart';
+import 'package:flutter_image_search/presentation/home/home_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Stream Check', () async {
-    final viewModel = HomeViewModel(FakePhotoApiRepository());
+    final viewModel = HomeViewModel(GetPhotosUseCase(FakePhotoApiRepository()));
     await viewModel.fetch('flower');
 
     final List<Photo> result = fakeJson.map((e) => Photo.fromJson(e)).toList();
     final viewModelPhotos = [];
     for (int i = 0; i < viewModel.length; i++) {
-      viewModelPhotos.add(viewModel.photo(i));
+      viewModelPhotos.add(viewModel.state.photo(i));
     }
     ;
     expect(viewModelPhotos, result);
@@ -20,9 +22,9 @@ void main() {
 
 class FakePhotoApiRepository implements PhotoApiRepository {
   @override
-  Future<List<Photo>> fetch(String query) async {
+  Future<Result<List<Photo>>> fetch(String query) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    return fakeJson.map((e) => Photo.fromJson(e)).toList();
+    return Result.success(fakeJson.map((e) => Photo.fromJson(e)).toList());
   }
 }
 
